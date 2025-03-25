@@ -17,8 +17,8 @@ pip install yfinance numpy pandas matplotlib scikit-learn keras
 1. Kloning repositori ini ke komputer Anda:
 
 ```bash
-git clone https://github.com/username/repository-name.git
-cd repository-name
+git clone https://github.com/cyclocerine/Stock-Price-Prediction.git
+cd Stock-Price-Prediction
 ```
 
 2. Ubah parameter variabel pada bagian utama kode sesuai kebutuhan Anda:
