@@ -7,7 +7,7 @@ Repositori ini berisi kode untuk memprediksi harga saham menggunakan gabungan mo
 Sebelum menjalankan kode, pastikan Anda menginstal semua library yang diperlukan. Anda dapat menginstalnya menggunakan `pip`:
 
 ```bash
-pip install yfinance numpy pandas matplotlib scikit-learn keras
+pip install -r requirements.txt
 ```
 
 ## Cara Penggunaan
@@ -62,6 +62,15 @@ Kode ini akan mengunduh data saham, menghitung indikator teknikal, melatih model
 
 ## Penjelasan Kode
 
+### Arsitektur Model
+
+Model yang digunakan adalah kombinasi CNN-LSTM dengan struktur sebagai berikut:
+- Layer Conv1D untuk ekstraksi fitur dari data time series
+- Tiga layer LSTM berurutan untuk menangkap pola temporal jangka panjang
+- Dropout layers untuk mencegah overfitting
+- BatchNormalization untuk stabilitas training
+- Dense layer untuk output prediksi
+
 ### Fungsi-fungsi Utama
 
 - **download_and_preprocess_data**: Mengunduh data saham menggunakan yfinance dan menghitung berbagai indikator teknikal (SMA, RSI, Bollinger Bands, MACD, Stochastic Oscillator).
@@ -82,8 +91,16 @@ Kode ini akan mengunduh data saham, menghitung indikator teknikal, melatih model
 
 - **forecast_days**: Jumlah hari ke depan yang akan diprediksi.
 
+## Performa Model
+
+Model CNN-LSTM ini umumnya menunjukkan performa yang lebih baik dibandingkan model tradisional seperti ARIMA atau model deep learning tunggal seperti LSTM biasa, terutama untuk prediksi harga saham yang dipengaruhi oleh banyak faktor. Metric evaluasi yang digunakan termasuk MSE (Mean Squared Error) dan MAE (Mean Absolute Error) untuk setiap hari yang diprediksi.
+
 ## Penutupan
 
 Repositori ini memberikan contoh implementasi model deep learning untuk prediksi harga saham dengan memanfaatkan teknik CNN-LSTM. Anda dapat menyesuaikan kode untuk berbagai saham atau indeks dengan mengganti parameter sesuai kebutuhan.
 
 Jika Anda menemukan masalah atau memiliki pertanyaan, silakan buka issue di repositori ini atau hubungi kontributor utama melalui email.
+
+## Lisensi
+
+Proyek ini dilisensikan di bawah MIT License - lihat file LICENSE untuk detail.
