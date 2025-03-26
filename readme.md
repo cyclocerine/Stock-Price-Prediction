@@ -1,3 +1,4 @@
+![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 # 📈 Prediksi Harga Saham dengan CNN-LSTM
 
 Selamat datang di proyek prediksi harga saham! 👋 
