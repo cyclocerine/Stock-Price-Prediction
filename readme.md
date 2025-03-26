@@ -108,4 +108,4 @@ Mari kita jadikan alat prediksi saham ini lebih baik bersama-sama! 🚀
 
 ## 📜 Lisensi
 
-Proyek ini dilisensikan di bawah MIT License - lihat file LICENSE untuk detail. Ini berarti Anda bebas menggunakan, memodifikasi, dan mendistribusikan kode ini baik untuk tujuan pribadi maupun komersial.
+Proyek ini dilisensikan di bawah lisensi Apache 2.0 - lihat file [LICENSE](./LICENSE) untuk detail.
