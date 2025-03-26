@@ -1,4 +1,4 @@
-# Copyright 2025 <Nama Anda or Nama Perusahaan>
+# Copyright 2025 Fa'iq Hammam on behalf of cyclocerine
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
