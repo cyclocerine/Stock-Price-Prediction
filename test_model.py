@@ -1,4 +1,6 @@
-# test_model.py
+from main import download_and_preprocess_data, create_dataset
+from sklearn.preprocessing import MinMaxScaler
+
 def test_download_data():
     data = download_and_preprocess_data('^JKSE', '2015-01-01', '2025-03-25')
     assert data is not None
