@@ -110,9 +110,9 @@ def forecast_future(model, last_sequence, forecast_days, num_features):
 # ==== Main Program ====
 if __name__ == "__main__":
     # Pengaturan parameter
-    ticker = '^JKSE'
+    ticker = 'MIKA.JK'
     start_date = '2015-01-01'
-    end_date = '2025-03-25'
+    end_date = '2025-04-09'
     lookback = 60       # Jumlah hari historis yang digunakan sebagai input
     forecast_days = 20  # Jumlah hari ke depan yang akan di-forecast
 
