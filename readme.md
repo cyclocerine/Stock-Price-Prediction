@@ -1,112 +1,96 @@
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
-# 📈 Prediksi Harga Saham dengan CNN-LSTM
+# 📈 StockPricePrediction
 
-Selamat datang di proyek prediksi harga saham! 👋 
+Prediksi harga saham, komoditas, dan instrumen keuangan lainnya menggunakan deep learning (CNN-LSTM, BiLSTM, Transformer, hingga ensemble). Tersedia versi CLI dan GUI interaktif untuk visualisasi dan backtesting.
 
-Apakah Anda pernah bertanya-tanya bagaimana cara memprediksi pergerakan harga saham? Repositori ini hadir untuk membantu Anda menjawab pertanyaan tersebut dengan menggunakan kekuatan deep learning! Di sini, kita menggabungkan dua model canggih - Convolutional Neural Networks (CNN) dan Long Short-Term Memory (LSTM) - untuk menganalisis dan memperkirakan harga saham berdasarkan data historis dan berbagai indikator teknikal.
+## 🔥 Fitur Unggulan
 
-## 🛠️ Apa Yang Anda Butuhkan
+- Model deep learning yang fleksibel: CNN-LSTM, BiLSTM, Transformer, Ensemble
+- Indikator teknikal: RSI, MACD, ADX, EMA/SMA, Fibonacci, Ichimoku, dan banyak lagi
+- Hyperparameter tuning dengan Keras Tuner
+- Backtesting strategi trading
+- GUI interaktif berbasis PyQt5
 
-Tidak perlu khawatir tentang setup yang rumit! Cukup pastikan Anda memiliki Python terinstal di komputer Anda, lalu ikuti langkah berikut untuk menginstal semua library yang diperlukan:
+---
 
-```bash
-pip install -r requirements.txt
-```
-
-Dan voila! Semua yang Anda butuhkan akan terinstal secara otomatis. Mudah, bukan?
-
-## 🚀 Mulai Menggunakan
-
-### Langkah-langkah Sederhana
-
-1. **Unduh kode ke komputer Anda:**
+## 🚀 Instalasi
 
 ```bash
 git clone https://github.com/cyclocerine/Stock-Price-Prediction.git
 cd Stock-Price-Prediction
+pip install -r requirements.txt
 ```
 
-2. **Sesuaikan dengan kebutuhan Anda:**
+> ⚠️ *Pastikan Python 3.8+ sudah terinstal dan `tensorflow`, `yfinance`, `PyQt5`, `scikit-learn`, `matplotlib`, `keras-tuner` tersedia.*
 
-   - **Pilih saham favorit Anda** - Ingin melihat bagaimana IHSG akan bergerak? Atau mungkin Anda tertarik dengan Apple? Cukup ubah kode saham:
+---
 
-   ```python
-   ticker = '^JKSE'  # Untuk IHSG Indonesia
-   # atau
-   ticker = 'AAPL'   # Untuk Apple
-   # atau saham favorit Anda lainnya!
-   ```
+## 🧠 Menjalankan CLI
 
-   - **Tentukan rentang waktu** - Pilih periode historis yang ingin Anda analisis:
-
-   ```python
-   start_date = '2015-01-01'  # Mulai dari awal 2015
-   end_date = '2025-03-25'    # Hingga Maret 2025
-   ```
-
-   - **Atur parameter prediksi** - Ingin model melihat 60 hari ke belakang untuk memprediksi 20 hari ke depan? Tidak masalah!
-
-   ```python
-   lookback = 60       # Model akan belajar dari 60 hari terakhir
-   forecast_days = 20  # Dan memprediksi 20 hari ke depan
-   ```
-
-3. **Jalankan dan lihat hasilnya:**
+Untuk prediksi harga menggunakan mode terminal (CLI):
 
 ```bash
-python main.py
+python main.py --help
 ```
 
-Kemudian duduklah sambil menikmati kopi ☕ sementara model bekerja keras! Program akan otomatis mengunduh data, melatih model, dan menampilkan hasil prediksi dalam bentuk grafik yang menarik.
+```bash
+python main.py --ticker AAPL --start_date 2020-01-01 --end_date 2024-12-31 --model cnn_lstm --lookback 60 --forecast 20 --tune False
+```
 
-## 🧠 Bagaimana Ini Bekerja?
+### Parameter CLI
 
-### Arsitektur Model yang Canggih
+| Argumen        | Keterangan                            | Contoh             |
+|----------------|----------------------------------------|--------------------|
+| `--ticker`     | Simbol saham/komoditas                 | `AAPL`, `ADRO.JK`  |
+| `--start_date` | Tanggal awal data historis (YYYY-MM-DD)| `2020-01-01`       |
+| `--end_date`   | Tanggal akhir data historis            | `2024-12-31`       |
+| `--model`      | Jenis model yang digunakan             | `cnn_lstm`, `bilstm`, `transformer`, `ensemble` |
+| `--lookback`   | Jumlah hari historis untuk input model | `60`               |
+| `--forecast`   | Jumlah hari ke depan untuk prediksi    | `20`               |
+| `--tune`       | Aktifkan hyperparameter tuning         | `True` / `False`   |
 
-Model CNN-LSTM kami menggabungkan dua pendekatan powerful dalam deep learning:
+---
 
-- **CNN** - Seperti ahli dalam mendeteksi pola visual, layer CNN mengekstrak pola-pola penting dari data time series
-- **LSTM** - Seperti memiliki memori jangka panjang, layer LSTM menangkap hubungan dan tren yang terjadi selama periode waktu tertentu
+## 🖼️ Menjalankan GUI
 
-Kombinasi keduanya menciptakan sistem yang dapat "melihat" pola harga dan "mengingat" tren jangka panjang - persis seperti yang dilakukan trader profesional!
+Untuk tampilan antarmuka grafis yang interaktif:
 
-### Fungsi-fungsi Utama yang Bekerja untuk Anda
+```bash
+python main-gui.py
+```
 
-- 📊 **download_and_preprocess_data** - Mengunduh data saham dan mengkalkulasi berbagai indikator teknikal yang biasa digunakan oleh para analis saham profesional
+### Fitur GUI
+- Input mudah untuk ticker, tanggal, dan model
+- Visualisasi hasil prediksi & forecast
+- Backtesting strategi trading (Trend Following, Mean Reversion, Predictive)
+- Optimizer strategi otomatis
+- Simpan grafik & hasil evaluasi ke file
 
-- 🔍 **create_dataset** - Menyiapkan data dengan cara khusus agar model dapat belajar dengan optimal
+---
 
-- 🏗️ **build_model** - Membangun arsitektur CNN-LSTM yang canggih untuk menangkap kompleksitas pasar saham
+## 📊 Contoh Hasil Prediksi
 
-- 🔮 **forecast_future** - Menggunakan model terlatih untuk memprediksi harga di masa depan
+![example-prediction](docs/example-prediction.png)
 
-## ⚙️ Sesuaikan Sesuka Anda
+---
 
-Anda memiliki kendali penuh! Ubah parameter ini sesuai keinginan:
+## 🧪 Lisensi
 
-- 🏢 **ticker** - Kode saham yang ingin Anda analisis (AAPL, BBCA.JK, ^JKSE, dll.)
-- 📅 **start_date & end_date** - Periode data historis
-- 🔙 **lookback** - Seberapa jauh ke belakang model harus "melihat"
-- 🔜 **forecast_days** - Seberapa jauh ke depan model harus "meramal"
+Proyek ini menggunakan [Apache License 2.0](./LICENSE). Bebas digunakan, tapi kasih kredit ya!
 
-## 📊 Performa yang Meyakinkan
+---
 
-Model CNN-LSTM ini memiliki keunggulan dibanding model tradisional! Dengan menggabungkan kekuatan CNN untuk deteksi pola dan LSTM untuk memori jangka panjang, model ini mampu menangkap kompleksitas pasar saham yang dipengaruhi berbagai faktor.
-
-Performa model dievaluasi dengan metrik standar industri:
-- MSE (Mean Squared Error) - Mengukur rata-rata kesalahan kuadrat
-- MAE (Mean Absolute Error) - Mengukur rata-rata kesalahan absolut
-
-Dalam praktiknya, model ini mampu menangkap tren pasar dengan lebih baik dibanding model tradisional seperti ARIMA!
-
-## 🤝 Mari Berkolaborasi
-
+## 🤝 Kontribusi
 Proyek ini adalah langkah yang menarik dalam dunia prediksi harga saham dengan deep learning. Anda dapat menggunakannya sebagai dasar untuk riset dan pengembangan lebih lanjut.
 
 Apakah Anda menemukan bug? Punya ide untuk peningkatan? Atau hanya ingin berbagi hasil prediksi Anda? Jangan ragu untuk membuka issue di repositori ini atau menghubungi kami lewat email.
 
 Mari kita jadikan alat prediksi saham ini lebih baik bersama-sama! 🚀
+Pull Request? Boleh banget. Buka issue? Gaskeun. 🌟
 
-## 📜 Lisensi
+---
 
-Proyek ini dilisensikan di bawah lisensi Apache 2.0 - lihat file [LICENSE](./LICENSE) untuk detail.
+## ✨ Dibuat oleh
+
+**Fa'iq Hammam**  
+💼 [LinkedIn](https://www.linkedin.com/in/faiq-hammam-mutaqin-9a3733217/) | 💻 IT Engineer | 🧠 Deep Learning Enthusiast
