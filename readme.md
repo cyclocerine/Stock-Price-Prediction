@@ -1,43 +1,90 @@
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 # 📈 StockPricePrediction
 
-Prediksi harga saham, komoditas, dan instrumen keuangan lainnya menggunakan deep learning (CNN-LSTM, BiLSTM, Transformer, hingga ensemble). Tersedia versi CLI dan GUI interaktif untuk visualisasi dan backtesting.
+Aplikasi prediksi harga saham yang menggunakan machine learning untuk memprediksi harga saham dan mendukung backtesting strategi trading.
 
-## 🔥 Fitur Unggulan
-
-- Model deep learning yang fleksibel: CNN-LSTM, BiLSTM, Transformer, Ensemble
-- Indikator teknikal: RSI, MACD, ADX, EMA/SMA, Fibonacci, Ichimoku, dan banyak lagi
-- Hyperparameter tuning dengan Keras Tuner
+## Fitur
+- Prediksi harga saham menggunakan berbagai model deep learning (CNN-LSTM, BiLSTM, Transformer, Ensemble)
 - Backtesting strategi trading
-- GUI interaktif berbasis PyQt5
+- Optimisasi parameter strategi
+- Simulasi trading berdasarkan hasil prediksi
+- Antarmuka grafis (GUI) untuk kemudahan penggunaan
 
----
+## Struktur Proyek
+Berikut adalah struktur proyek 
 
-## 🚀 Instalasi
+```
+Stock-Price-Prediction/
+├── README.md                  # Dokumentasi proyek
+├── requirements.txt           # Dependencies proyek
+├── LICENSE                    # Lisensi proyek
+├── CODE_OF_CONDUCT.md         # Kode etik
+├── CONTRIBUTING.md            # Panduan kontribusi
+├── src/                       # Direktori utama kode sumber
+│   ├── __init__.py            # File inisialisasi package
+│   ├── data/                  # Modul terkait data
+│   │   ├── __init__.py
+│   │   ├── preprocessor.py    # Preprocessing data
+│   │   └── indicators.py      # Indikator teknikal
+│   ├── models/                # Modul terkait model
+│   │   ├── __init__.py
+│   │   ├── builder.py         # Pembuat model
+│   │   ├── tuner.py           # Hyperparameter tuning
+│   │   └── predictor.py       # Prediktor saham
+│   ├── trading/               # Modul terkait trading
+│   │   ├── __init__.py
+│   │   ├── strategies.py      # Strategi trading
+│   │   ├── backtest.py        # Backtesting
+│   │   └── optimizer.py       # Optimisasi strategi
+│   ├── gui/                   # Modul terkait GUI
+│   │   ├── __init__.py
+│   │   ├── app.py             # Aplikasi utama
+│   │   ├── prediction_tab.py  # Tab prediksi
+│   │   ├── backtest_tab.py    # Tab backtesting
+│   │   ├── optimizer_tab.py   # Tab optimisasi
+│   │   └── forecast_tab.py    # Tab trading forecast
+│   └── utils/                 # Utilitas
+│       ├── __init__.py
+│       ├── visualization.py   # Visualisasi data dan hasil
+│       └── common.py          # Fungsi umum
+├── tests/                     # Direktori untuk pengujian
+│   ├── __init__.py
+│   ├── test_data.py
+│   ├── test_models.py
+│   ├── test_trading.py
+│   └── test_utils.py
+├── examples/                  # Contoh penggunaan
+│   ├── basic_prediction.py
+│   ├── backtest_example.py
+│   └── strategy_optimization.py
+├── scripts/                   # Script untuk menjalankan aplikasi
+│   ├── run_app.py             # Menjalankan aplikasi GUI
+│   └── run_cli.py             # Menjalankan versi command line
+└── assets/                    # Aset statis (gambar, logo, dll)
+    └── screenshot.png
+```
+
+## Instalasi
 
 ```bash
-git clone https://github.com/cyclocerine/Stock-Price-Prediction.git
-cd Stock-Price-Prediction
 pip install -r requirements.txt
 ```
 
-> ⚠️ *Pastikan Python 3.8+ sudah terinstal dan `tensorflow`, `yfinance`, `PyQt5`, `scikit-learn`, `matplotlib`, `keras-tuner` tersedia.*
+## Penggunaan
 
----
-
-## 🧠 Menjalankan CLI
-
-Untuk prediksi harga menggunakan mode terminal (CLI):
-
+### GUI
 ```bash
-python main.py --help
+python scripts/run_app.py
 ```
 
+### Command Line
 ```bash
-python main.py --ticker AAPL --start_date 2020-01-01 --end_date 2024-12-31 --model cnn_lstm --lookback 60 --forecast 20 --tune False
+python scripts/run_cli.py --ticker ADRO.JK --start_date 2020-01-01 --end_date 2023-01-01 --model ensemble --lookback 60 --forecast_days 30
 ```
 
 ### Parameter CLI
+
+---
 
 | Argumen        | Keterangan                            | Contoh             |
 |----------------|----------------------------------------|--------------------|
@@ -50,6 +97,12 @@ python main.py --ticker AAPL --start_date 2020-01-01 --end_date 2024-12-31 --mod
 | `--tune`       | Aktifkan hyperparameter tuning         | `True` / `False`   |
 
 ---
+
+## Contributing
+Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk detail tentang kode etik dan proses pengajuan pull request.
+
+## License
+Proyek ini dilisensikan di bawah Apache License 2.0 - lihat file [LICENSE](LICENSE) untuk detailnya.
 
 ## 🖼️ Menjalankan GUI
 
