@@ -68,12 +68,6 @@ python main-gui.py
 
 ---
 
-## 📊 Contoh Hasil Prediksi
-
-![example-prediction](docs/example-prediction.png)
-
----
-
 ## 🧪 Lisensi
 
 Proyek ini menggunakan [Apache License 2.0](./LICENSE). Bebas digunakan, tapi kasih kredit ya!
