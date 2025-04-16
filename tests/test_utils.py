@@ -1,5 +1,5 @@
 import numpy as np
-from src.utils.common import TechnicalIndicators
+from src.data.indicators import TechnicalIndicators
 
 def test_rsi_output_shape():
     data = np.random.rand(100) * 100

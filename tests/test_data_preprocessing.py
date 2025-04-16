@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from src.data.preprocessing import DataPreprocessor
+from src.data.preprocessor import DataPreprocessor
 
 def test_data_download():
     dp = DataPreprocessor("AAPL", "2022-01-01", "2022-12-31")
