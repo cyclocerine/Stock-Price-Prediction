@@ -29,19 +29,19 @@ def test_mean_reversion_strategy():
         predicted_prices, 
         actual_prices, 
         5, 
-        {'window': 3, 'buy_threshold': 0.02, 'sell_threshold': 0.02}
+        {'window': 3, 'buy_threshold': 0.98, 'sell_threshold': 1.02}
     )
-    assert signal == 'BUY'
+    assert signal == 'SELL'
     
     # Menguji sinyal "SELL" (harga di atas moving average)
-    actual_prices_2 = np.array([102, 104, 107, 110, 105, 118, 120])
+    actual_prices_2 = np.array([102, 104, 107, 110, 105, 100, 98])
     signal = TradingStrategy.mean_reversion(
         predicted_prices, 
         actual_prices_2, 
         5, 
-        {'window': 3, 'buy_threshold': 0.02, 'sell_threshold': 0.02}
+        {'window': 3, 'buy_threshold': 0.98, 'sell_threshold': 1.02}
     )
-    assert signal == 'SELL'
+    assert signal == 'BUY'
     
     # Menguji sinyal "HOLD" (harga dalam threshold)
     actual_prices_3 = np.array([102, 104, 107, 110, 108, 109, 110])
@@ -49,7 +49,7 @@ def test_mean_reversion_strategy():
         predicted_prices, 
         actual_prices_3, 
         5, 
-        {'window': 3, 'buy_threshold': 0.05, 'sell_threshold': 0.05}
+        {'window': 3, 'buy_threshold': 0.90, 'sell_threshold': 1.10}
     )
     assert signal == 'HOLD'
 

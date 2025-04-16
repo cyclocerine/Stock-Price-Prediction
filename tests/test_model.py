@@ -17,7 +17,7 @@ def test_stock_predictor_instance():
     assert predictor.end_date == "2022-12-31"
 
 def test_model_builder_methods():
-    from src.models.model_builder import ModelBuilder
+    from src.models.builder import ModelBuilder
     
     # Test model creation with simple input shape
     input_shape = (30, 10)  # time steps, features

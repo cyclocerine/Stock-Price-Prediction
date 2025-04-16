@@ -147,7 +147,10 @@ class TradingStrategy:
         strategies = {
             'Trend Following': TradingStrategy.trend_following,
             'Mean Reversion': TradingStrategy.mean_reversion,
-            'Predictive': TradingStrategy.predictive
+            'Predictive': TradingStrategy.predictive,
+            'trend_following': TradingStrategy.trend_following,
+            'mean_reversion': TradingStrategy.mean_reversion,
+            'predictive': TradingStrategy.predictive
         }
         
         if strategy_name not in strategies:
