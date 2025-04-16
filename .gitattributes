@@ -1,57 +1,25 @@
-# Auto detect text files and perform LF normalization
+# Normalisasi end-of-line
 * text=auto
 
-# Basic .gitattributes for a python repo.
-*.py     text diff=python
-*.pyx    text diff=python
-*.pxd    text diff=python
-*.pxi    text diff=python
+# Python source files
+*.py text eol=lf
 
-# Source files
-*.pyw    text eol=crlf
-*.ipynb  text eol=lf
+# Markdown files
+*.md text eol=lf
 
-# Binary files
-*.db     binary
-*.p      binary
-*.pkl    binary
-*.pickle binary
-*.h5     binary
-*.hdf5   binary
-*.joblib binary
+# YAML & config
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
 
-# Jupyter notebook
-*.ipynb  linguist-documentation
+# Ignore Jupyter notebook outputs in linguist stats
+*.ipynb linguist-documentation
 
-# Documentation
-*.md       text diff=markdown
-*.txt      text
-*.rst      text
-*.pdf      binary
-*.html     text diff=html
-*.css      text diff=css
-*.js       text
-README*    text
+# UI/GUI assets (jika ada)
+*.png binary
+*.jpg binary
+*.svg text
 
-# Graphics
-*.png      binary
-*.jpg      binary
-*.jpeg     binary
-*.gif      binary
-*.tif      binary
-*.tiff     binary
-*.ico      binary
-*.svg      text
-*.eps      binary
-
-# Data files
-*.csv      text
-*.json     text
-*.xml      text
-*.xlsx     binary
-*.xls      binary
-
-# Exclude files from exporting
-.gitattributes export-ignore
-.gitignore     export-ignore
-.github        export-ignore
+# Treat main.py and GUI as primary language
+main.py linguist-language=Python
+main-gui.py linguist-language=Python
