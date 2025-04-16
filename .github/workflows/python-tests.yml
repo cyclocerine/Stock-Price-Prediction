@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.12]
+        python-version: [3.9, 3.10]
 
     steps:
     - uses: actions/checkout@v3
@@ -26,11 +26,8 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install pytest pytest-cov
-        
-    - name: Update test imports
-      run: |
-        # Update import statements in test files to use src module paths
-        find tests -name "*.py" -type f -exec sed -i 's/from main import/from src.models.predictor import/g' {} \;
+        # Install package in development mode
+        pip install -e .
         
     - name: Test with pytest
       run: |
