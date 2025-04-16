@@ -104,21 +104,6 @@ Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk detail tentang kode etik d
 ## License
 Proyek ini dilisensikan di bawah Apache License 2.0 - lihat file [LICENSE](LICENSE) untuk detailnya.
 
-## 🖼️ Menjalankan GUI
-
-Untuk tampilan antarmuka grafis yang interaktif:
-
-```bash
-python main-gui.py
-```
-
-### Fitur GUI
-- Input mudah untuk ticker, tanggal, dan model
-- Visualisasi hasil prediksi & forecast
-- Backtesting strategi trading (Trend Following, Mean Reversion, Predictive)
-- Optimizer strategi otomatis
-- Simpan grafik & hasil evaluasi ke file
-
 ---
 
 ## 🧪 Lisensi

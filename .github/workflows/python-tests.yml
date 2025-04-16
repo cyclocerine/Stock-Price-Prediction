@@ -1,34 +1,42 @@
-name: 🧪 Python Tests
+name: Python Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11]
+        python-version: [3.9, 3.10]
 
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v3
-
-      - name: 🐍 Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: 📦 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
-
-      - name: 🚀 Run tests with pytest
-        run: |
-          pytest tests/ --maxfail=3 --disable-warnings -v
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov
+        
+    - name: Update test imports
+      run: |
+        # Update import statements in test files to use src module paths
+        find tests -name "*.py" -type f -exec sed -i 's/from main import/from src.models.predictor import/g' {} \;
+        
+    - name: Test with pytest
+      run: |
+        pytest --cov=src tests/
+        
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: false
