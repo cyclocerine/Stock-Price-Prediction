@@ -9,6 +9,7 @@ mengoptimalkan parameter strategi trading.
 import itertools
 import numpy as np
 from .strategies import TradingStrategy
+from .ppo_agent import PPOTrader
 
 class StrategyOptimizer:
     def __init__(self, actual_prices, predicted_prices, initial_investment=10000):
@@ -50,6 +51,10 @@ class StrategyOptimizer:
         if not param_ranges:
             raise ValueError("Parameter ranges must be provided")
             
+        # Khusus untuk strategi PPO perlu pendekatan berbeda
+        if strategy.lower() == 'ppo':
+            return self.optimize_ppo(param_ranges)
+            
         # Siapkan kombinasi parameter
         param_combinations = self._generate_parameter_combinations(param_ranges)
         
@@ -76,6 +81,113 @@ class StrategyOptimizer:
                 best_performance = performance
                 best_portfolio_values = portfolio_values
                 best_trades = trades
+        
+        return best_params, best_performance, best_portfolio_values, best_trades
+        
+    def optimize_ppo(self, param_ranges):
+        """
+        Mengoptimalkan parameter untuk strategi PPO
+        
+        Parameters:
+        -----------
+        param_ranges : dict
+            Dictionary berisi range parameter yang akan diuji
+            
+        Returns:
+        --------
+        tuple
+            (best_params, best_performance, best_portfolio_values, best_trades)
+        """
+        # Extract ppo specific params
+        ppo_params = {
+            'actor_lr': param_ranges.get('actor_lr', [0.0003]),
+            'critic_lr': param_ranges.get('critic_lr', [0.001]),
+            'gamma': param_ranges.get('gamma', [0.99]),
+            'clip_ratio': param_ranges.get('clip_ratio', [0.2]),
+            'episodes': param_ranges.get('episodes', [50]),
+        }
+        
+        # Generate parameter combinations
+        ppo_param_combinations = self._generate_parameter_combinations(ppo_params)
+        
+        best_return = -np.inf
+        best_params = None
+        best_performance = None
+        best_portfolio_values = None
+        best_trades = None
+        
+        # Create features for PPO
+        train_size = int(len(self.actual_prices) * 0.8)
+        
+        # Split data for training and evaluation
+        train_prices = self.actual_prices[:train_size]
+        train_predicted = self.predicted_prices[:train_size] if self.predicted_prices is not None else None
+        
+        eval_prices = self.actual_prices[train_size:]
+        eval_predicted = self.predicted_prices[train_size:] if self.predicted_prices is not None else None
+        
+        # Persiapan fitur
+        import numpy as np
+        train_features = None
+        if train_predicted is not None:
+            train_features = np.column_stack((
+                train_predicted,  # Prediksi harga
+                train_prices      # Harga aktual
+            ))
+            
+        # Uji setiap kombinasi parameter
+        for params in ppo_param_combinations:
+            try:
+                # Buat dan latih model PPO
+                ppo_trader = PPOTrader(
+                    prices=train_prices,
+                    features=train_features,
+                    initial_investment=self.initial_investment
+                )
+                
+                # Set parameter agent
+                ppo_trader.agent.actor_lr = params['actor_lr']
+                ppo_trader.agent.critic_lr = params['critic_lr']
+                ppo_trader.agent.gamma = params['gamma']
+                ppo_trader.agent.clip_ratio = params['clip_ratio']
+                
+                # Latih model
+                train_results = ppo_trader.train(episodes=params['episodes'])
+                
+                # Backtest model pada data evaluasi
+                eval_features = None
+                if eval_predicted is not None:
+                    eval_features = np.column_stack((
+                        eval_predicted,  # Prediksi harga
+                        eval_prices      # Harga aktual
+                    ))
+                
+                backtest_results = ppo_trader.backtest(
+                    prices=eval_prices,
+                    features=eval_features,
+                    initial_investment=self.initial_investment
+                )
+                
+                # Ambil hasil
+                portfolio_values = backtest_results['portfolio_values']
+                trades = backtest_results['trades']
+                performance = backtest_results['performance']
+                
+                # Cari return terbaik
+                current_return = performance['total_return']
+                if current_return > best_return:
+                    best_return = current_return
+                    best_params = params
+                    best_performance = performance
+                    best_portfolio_values = portfolio_values
+                    best_trades = trades
+                    
+                    # Tambahkan model terbaik ke params
+                    best_params['ppo_agent'] = ppo_trader
+                    
+            except Exception as e:
+                print(f"Error during PPO optimization: {str(e)}")
+                continue
         
         return best_params, best_performance, best_portfolio_values, best_trades
     

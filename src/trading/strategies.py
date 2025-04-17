@@ -6,6 +6,8 @@ Modul ini berisi implementasi berbagai strategi trading
 yang digunakan dalam backtest.
 """
 
+from .ppo_agent import PPOTrader
+
 class TradingStrategy:
     @staticmethod
     def trend_following(predicted_prices, actual_prices, index, params=None):
@@ -125,6 +127,126 @@ class TradingStrategy:
         return 'HOLD'
     
     @staticmethod
+    def ppo(predicted_prices, actual_prices, index, params=None):
+        """
+        Strategi PPO (Proximal Policy Optimization)
+        
+        Menggunakan reinforcement learning untuk menentukan sinyal trading optimal.
+        
+        Parameters:
+        -----------
+        predicted_prices : array-like
+            Harga prediksi dari model
+        actual_prices : array-like
+            Harga aktual historis
+        index : int
+            Indeks waktu saat ini
+        params : dict, optional
+            Parameter tambahan untuk strategi ini
+            
+        Returns:
+        --------
+        str
+            Sinyal trading: 'BUY', 'SELL', atau 'HOLD'
+        """
+        if params is None or 'ppo_agent' not in params:
+            # Gunakan data sebelumnya untuk training jika belum ada agent
+            if 'training_done' not in params or not params['training_done']:
+                # Dapatkan data untuk training (historis sampai indeks saat ini)
+                train_prices = actual_prices[:index+1]
+                
+                # Buat dan latih model PPO jika belum dilatih
+                if index > 30:  # Pastikan data cukup untuk training
+                    # Siapkan fitur, termasuk prediksi
+                    import numpy as np
+                    
+                    # Gunakan predicted_prices sebagai fitur tambahan jika tersedia
+                    if predicted_prices is not None:
+                        # Pastikan bentuk array konsisten dengan mengubah menjadi vector kolom
+                        pred_reshaped = np.array(predicted_prices[:index+1]).reshape(-1, 1)
+                        actual_reshaped = np.array(actual_prices[:index+1]).reshape(-1, 1)
+                        
+                        # Gabungkan feature dengan bentuk yang konsisten
+                        train_features = np.hstack((pred_reshaped, actual_reshaped))
+                    else:
+                        train_features = None
+                    
+                    # Buat PPOTrader baru
+                    ppo_trader = PPOTrader(
+                        prices=train_prices,
+                        features=train_features,
+                        initial_investment=10000
+                    )
+                    
+                    # Latih model (jumlah episode lebih sedikit untuk runtime lebih cepat)
+                    train_results = ppo_trader.train(episodes=10)
+                    
+                    # Simpan agent di params untuk digunakan selanjutnya
+                    if 'ppo_agent' not in params:
+                        params['ppo_agent'] = ppo_trader
+                        params['training_done'] = True
+                        params['actions'] = []
+                
+                # Jika tidak cukup data atau training belum selesai, gunakan strategi default
+                return TradingStrategy.predictive(predicted_prices, actual_prices, index)
+            
+        # Gunakan agent yang sudah dilatih untuk menghasilkan sinyal
+        if 'ppo_agent' in params:
+            ppo_agent = params['ppo_agent']
+            
+            # Prepare state untuk agent
+            if 'actions' not in params:
+                params['actions'] = []
+                
+            # Buat observasi dari data saat ini
+            features = None
+            if predicted_prices is not None:
+                # Jika ada prediksi, tambahkan sebagai fitur
+                import numpy as np
+                # Reshape menjadi 2D array dengan bentuk konsisten
+                features = np.array([predicted_prices[index]]).reshape(1, 1)
+            
+            # Gunakan dummy environment untuk mendapatkan aksi
+            env = ppo_agent.env
+            env.prices = actual_prices
+            env.current_step = index
+            
+            # Dapatkan observasi
+            if features is not None:
+                if index < len(env.features):
+                    # Pastikan bentuk dimensi sesuai
+                    feature_width = env.features.shape[1]
+                    if feature_width == features.shape[1]:
+                        env.features[index] = features
+                    else:
+                        # Sesuaikan bentuk jika tidak sesuai
+                        env.features[index] = np.zeros(feature_width)
+                        env.features[index, 0] = features[0, 0]
+                else:
+                    # Handle jika index diluar range
+                    dummy_features = np.zeros((1, env.features.shape[1]))
+                    dummy_features[0, 0] = features[0, 0]
+                    env.features = np.concatenate([env.features, dummy_features])
+                    
+            # Get observation
+            observation = env._get_observation()
+            
+            # Get action from agent
+            action, _, _ = ppo_agent.agent.get_action(observation)
+            params['actions'].append(action)
+            
+            # Convert action (0=HOLD, 1=BUY, 2=SELL) to signal
+            if action == 1:
+                return 'BUY'
+            elif action == 2:
+                return 'SELL'
+            else:
+                return 'HOLD'
+        
+        # Fallback ke strategi predictive
+        return TradingStrategy.predictive(predicted_prices, actual_prices, index)
+    
+    @staticmethod
     def get_strategy_function(strategy_name):
         """
         Mendapatkan fungsi strategi berdasarkan nama
@@ -148,9 +270,11 @@ class TradingStrategy:
             'Trend Following': TradingStrategy.trend_following,
             'Mean Reversion': TradingStrategy.mean_reversion,
             'Predictive': TradingStrategy.predictive,
+            'PPO': TradingStrategy.ppo,
             'trend_following': TradingStrategy.trend_following,
             'mean_reversion': TradingStrategy.mean_reversion,
-            'predictive': TradingStrategy.predictive
+            'predictive': TradingStrategy.predictive,
+            'ppo': TradingStrategy.ppo
         }
         
         if strategy_name not in strategies:

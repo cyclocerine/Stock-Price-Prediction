@@ -81,7 +81,7 @@ class OptimizerTab(QWidget):
         strategy_group = QGroupBox("Strategy")
         strategy_layout = QVBoxLayout()
         self.strategy_combo = QComboBox()
-        self.strategy_combo.addItems(['trend_following', 'mean_reversion', 'predictive'])
+        self.strategy_combo.addItems(['trend_following', 'mean_reversion', 'predictive', 'PPO'])
         self.strategy_combo.currentIndexChanged.connect(self.on_strategy_changed)
         strategy_layout.addWidget(self.strategy_combo)
         strategy_group.setLayout(strategy_layout)
@@ -211,9 +211,70 @@ class OptimizerTab(QWidget):
         self.predictive_group.setLayout(predictive_layout)
         param_section.addWidget(self.predictive_group)
         
+        # PPO Parameters
+        self.ppo_group = QGroupBox("PPO Parameters")
+        ppo_layout = QFormLayout()
+        
+        self.episodes_range = []
+        episodes_min = QSpinBox()
+        episodes_min.setRange(5, 50)
+        episodes_min.setValue(5)
+        episodes_max = QSpinBox()
+        episodes_max.setRange(10, 100)
+        episodes_max.setValue(20)
+        episodes_step = QSpinBox()
+        episodes_step.setRange(5, 10)
+        episodes_step.setValue(5)
+        
+        self.gamma_range = []
+        gamma_min = QDoubleSpinBox()
+        gamma_min.setRange(0.9, 0.99)
+        gamma_min.setSingleStep(0.01)
+        gamma_min.setValue(0.95)
+        gamma_max = QDoubleSpinBox()
+        gamma_max.setRange(0.9, 0.999)
+        gamma_max.setSingleStep(0.01)
+        gamma_max.setValue(0.99)
+        gamma_step = QDoubleSpinBox()
+        gamma_step.setRange(0.01, 0.05)
+        gamma_step.setSingleStep(0.01)
+        gamma_step.setValue(0.01)
+        
+        self.lambda_range = []
+        lambda_min = QDoubleSpinBox()
+        lambda_min.setRange(0.9, 0.99)
+        lambda_min.setSingleStep(0.01)
+        lambda_min.setValue(0.9)
+        lambda_max = QDoubleSpinBox()
+        lambda_max.setRange(0.9, 0.99)
+        lambda_max.setSingleStep(0.01)
+        lambda_max.setValue(0.99)
+        lambda_step = QDoubleSpinBox()
+        lambda_step.setRange(0.01, 0.05)
+        lambda_step.setSingleStep(0.01)
+        lambda_step.setValue(0.03)
+        
+        ppo_layout.addRow("Min Episodes:", episodes_min)
+        ppo_layout.addRow("Max Episodes:", episodes_max)
+        ppo_layout.addRow("Episodes Step:", episodes_step)
+        ppo_layout.addRow("Min Gamma:", gamma_min)
+        ppo_layout.addRow("Max Gamma:", gamma_max)
+        ppo_layout.addRow("Gamma Step:", gamma_step)
+        ppo_layout.addRow("Min Lambda:", lambda_min)
+        ppo_layout.addRow("Max Lambda:", lambda_max)
+        ppo_layout.addRow("Lambda Step:", lambda_step)
+        
+        self.episodes_range = [episodes_min, episodes_max, episodes_step]
+        self.gamma_range = [gamma_min, gamma_max, gamma_step]
+        self.lambda_range = [lambda_min, lambda_max, lambda_step]
+        
+        self.ppo_group.setLayout(ppo_layout)
+        param_section.addWidget(self.ppo_group)
+        
         # Show only relevant parameter group
         self.mean_reversion_group.hide()
         self.predictive_group.hide()
+        self.ppo_group.hide()
         
         layout.addLayout(param_section)
         
@@ -248,6 +309,7 @@ class OptimizerTab(QWidget):
         self.trend_following_group.hide()
         self.mean_reversion_group.hide()
         self.predictive_group.hide()
+        self.ppo_group.hide()
         
         if strategy == 'trend_following':
             self.trend_following_group.show()
@@ -255,6 +317,8 @@ class OptimizerTab(QWidget):
             self.mean_reversion_group.show()
         elif strategy == 'predictive':
             self.predictive_group.show()
+        elif strategy in ['PPO', 'ppo']:
+            self.ppo_group.show()
     
     def run_strategy_optimization(self):
         # Disable run button
@@ -265,40 +329,46 @@ class OptimizerTab(QWidget):
         ticker = self.ticker_input.currentText()
         start_date = self.start_date.date().toString("yyyy-MM-dd")
         end_date = self.end_date.date().toString("yyyy-MM-dd")
-        model_type = self.model_combo.currentText()
+        model = self.model_combo.currentText()
         strategy = self.strategy_combo.currentText()
         initial_investment = self.investment_spin.value()
         
-        # Get parameter ranges based on strategy
+        # Generate parameter ranges based on strategy
         param_ranges = {}
+        
         if strategy == 'trend_following':
-            min_threshold = self.trend_thresholds[0].value()
-            max_threshold = self.trend_thresholds[1].value()
-            step = self.trend_thresholds[2].value()
-            thresholds = [round(min_threshold + i * step, 4) 
-                         for i in range(int((max_threshold - min_threshold) / step) + 1)]
+            threshold_min, threshold_max, threshold_step = [s.value() for s in self.trend_thresholds]
+            thresholds = []
+            current = threshold_min
+            while current <= threshold_max:
+                thresholds.append(round(current, 3))
+                current += threshold_step
+                
             param_ranges = {'threshold': thresholds}
             
         elif strategy == 'mean_reversion':
-            min_window = self.window_sizes[0].value()
-            max_window = self.window_sizes[1].value()
-            window_step = self.window_sizes[2].value()
+            window_min, window_max, window_step = [s.value() for s in self.window_sizes]
+            buy_min, buy_max, buy_step = [s.value() for s in self.buy_thresholds]
+            sell_min, sell_max, sell_step = [s.value() for s in self.sell_thresholds]
             
-            min_buy = self.buy_thresholds[0].value()
-            max_buy = self.buy_thresholds[1].value()
-            buy_step = self.buy_thresholds[2].value()
-            
-            min_sell = self.sell_thresholds[0].value()
-            max_sell = self.sell_thresholds[1].value()
-            sell_step = self.sell_thresholds[2].value()
-            
-            windows = [min_window + i * window_step 
-                       for i in range(int((max_window - min_window) / window_step) + 1)]
-            buy_thresholds = [round(min_buy + i * buy_step, 4) 
-                             for i in range(int((max_buy - min_buy) / buy_step) + 1)]
-            sell_thresholds = [round(min_sell + i * sell_step, 4) 
-                              for i in range(int((max_sell - min_sell) / sell_step) + 1)]
-            
+            windows = []
+            current = window_min
+            while current <= window_max:
+                windows.append(int(current))
+                current += window_step
+                
+            buy_thresholds = []
+            current = buy_min
+            while current <= buy_max:
+                buy_thresholds.append(round(current, 3))
+                current += buy_step
+                
+            sell_thresholds = []
+            current = sell_min
+            while current <= sell_max:
+                sell_thresholds.append(round(current, 3))
+                current += sell_step
+                
             param_ranges = {
                 'window': windows,
                 'buy_threshold': buy_thresholds,
@@ -306,40 +376,70 @@ class OptimizerTab(QWidget):
             }
             
         elif strategy == 'predictive':
-            min_buy = self.buy_multipliers[0].value()
-            max_buy = self.buy_multipliers[1].value()
-            buy_step = self.buy_multipliers[2].value()
+            buy_min, buy_max, buy_step = [s.value() for s in self.buy_multipliers]
+            sell_min, sell_max, sell_step = [s.value() for s in self.sell_multipliers]
             
-            min_sell = self.sell_multipliers[0].value()
-            max_sell = self.sell_multipliers[1].value()
-            sell_step = self.sell_multipliers[2].value()
-            
-            buy_multipliers = [round(min_buy + i * buy_step, 4) 
-                              for i in range(int((max_buy - min_buy) / buy_step) + 1)]
-            sell_multipliers = [round(min_sell + i * sell_step, 4) 
-                               for i in range(int((max_sell - min_sell) / sell_step) + 1)]
-            
+            buy_multipliers = []
+            current = buy_min
+            while current <= buy_max:
+                buy_multipliers.append(round(current, 3))
+                current += buy_step
+                
+            sell_multipliers = []
+            current = sell_min
+            while current <= sell_max:
+                sell_multipliers.append(round(current, 3))
+                current += sell_step
+                
             param_ranges = {
                 'buy_threshold': buy_multipliers,
                 'sell_threshold': sell_multipliers
             }
+            
+        elif strategy in ['PPO', 'ppo']:
+            episodes_min, episodes_max, episodes_step = [s.value() for s in self.episodes_range]
+            gamma_min, gamma_max, gamma_step = [s.value() for s in self.gamma_range]
+            lambda_min, lambda_max, lambda_step = [s.value() for s in self.lambda_range]
+            
+            episodes_list = []
+            current = episodes_min
+            while current <= episodes_max:
+                episodes_list.append(int(current))
+                current += episodes_step
+                
+            param_ranges = {
+                'episodes': episodes_list,
+                'gamma': {
+                    'min': gamma_min,
+                    'max': gamma_max,
+                    'step': gamma_step
+                },
+                'lambda': {
+                    'min': lambda_min,
+                    'max': lambda_max,
+                    'step': lambda_step
+                }
+            }
         
-        # Create and start worker thread
+        # Create worker thread
         self.worker = StrategyOptimizerWorker(
-            ticker, start_date, end_date,
-            model_type, initial_investment,
+            ticker, start_date, end_date, model, initial_investment,
             strategy, param_ranges
         )
-        self.worker.finished.connect(self.on_optimization_finished)
+        
+        # Connect signals
         self.worker.progress.connect(self.update_opt_progress)
+        self.worker.finished.connect(self.on_optimization_finished)
         self.worker.error.connect(self.show_opt_error)
+        
+        # Start worker
         self.worker.start()
-    
+        
     def update_opt_progress(self, value):
         self.progress_bar.setValue(value)
     
     def show_opt_error(self, message):
-        QMessageBox.critical(self, "Error", message)
+        QMessageBox.critical(self, "Error", f"Error during optimization: {message}")
         self.run_button.setEnabled(True)
     
     def on_optimization_finished(self, results):
@@ -347,33 +447,45 @@ class OptimizerTab(QWidget):
         self.results_table.setRowCount(len(results))
         
         for i, result in enumerate(results):
-            strategy_item = QTableWidgetItem(result['strategy'])
+            strategy = QTableWidgetItem(result['strategy'])
             
-            params_str = ""
-            for key, value in result['params'].items():
-                params_str += f"{key}: {value}, "
-            params_str = params_str[:-2]  # Remove trailing comma and space
-            params_item = QTableWidgetItem(params_str)
+            # Format parameters based on strategy
+            params_text = ""
+            if result['strategy'] == 'trend_following':
+                params_text = f"Threshold: {result['params']['threshold']:.3f}"
+            elif result['strategy'] == 'mean_reversion':
+                params_text = f"Window: {result['params']['window']}, "
+                params_text += f"Buy: {result['params']['buy_threshold']:.3f}, "
+                params_text += f"Sell: {result['params']['sell_threshold']:.3f}"
+            elif result['strategy'] == 'predictive':
+                params_text = f"Buy: {result['params']['buy_threshold']:.3f}, "
+                params_text += f"Sell: {result['params']['sell_threshold']:.3f}"
+            elif result['strategy'] in ['PPO', 'ppo']:
+                params_text = f"Episodes: {result['params']['episodes']}, "
+                params_text += f"Gamma: {result['params']['gamma']:.3f}, "
+                params_text += f"Lambda: {result['params']['lambda']:.2f}"
+                
+            params = QTableWidgetItem(params_text)
             
-            initial_item = QTableWidgetItem(f"${result['performance']['initial_investment']:.2f}")
-            final_item = QTableWidgetItem(f"${result['performance']['final_value']:.2f}")
-            return_item = QTableWidgetItem(f"{result['performance']['total_return']:.2f}")
-            drawdown_item = QTableWidgetItem(f"{result['performance']['max_drawdown']:.2f}")
-            winrate_item = QTableWidgetItem(f"{result['performance']['win_rate']:.2f}")
-            trades_item = QTableWidgetItem(f"{result['performance']['num_trades']}")
+            initial = QTableWidgetItem(f"{result['initial_investment']:.2f}")
+            final = QTableWidgetItem(f"{result['final_value']:.2f}")
+            total_return = QTableWidgetItem(f"{result['total_return']:.2f}")
+            drawdown = QTableWidgetItem(f"{result['max_drawdown']:.2f}")
+            win_rate = QTableWidgetItem(f"{result['win_rate']:.2f}")
+            trades = QTableWidgetItem(f"{result['num_trades']}")
             
-            self.results_table.setItem(i, 0, strategy_item)
-            self.results_table.setItem(i, 1, params_item)
-            self.results_table.setItem(i, 2, initial_item)
-            self.results_table.setItem(i, 3, final_item)
-            self.results_table.setItem(i, 4, return_item)
-            self.results_table.setItem(i, 5, drawdown_item)
-            self.results_table.setItem(i, 6, winrate_item)
-            self.results_table.setItem(i, 7, trades_item)
+            self.results_table.setItem(i, 0, strategy)
+            self.results_table.setItem(i, 1, params)
+            self.results_table.setItem(i, 2, initial)
+            self.results_table.setItem(i, 3, final)
+            self.results_table.setItem(i, 4, total_return)
+            self.results_table.setItem(i, 5, drawdown)
+            self.results_table.setItem(i, 6, win_rate)
+            self.results_table.setItem(i, 7, trades)
         
-        # Enable buttons
-        self.run_button.setEnabled(True)
+        # Enable save button
         self.save_results_button.setEnabled(True)
+        self.run_button.setEnabled(True)
     
     def save_optimization_results(self):
         # Implement save results functionality

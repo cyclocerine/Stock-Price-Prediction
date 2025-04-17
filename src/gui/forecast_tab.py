@@ -33,7 +33,7 @@ class ForecastTab(QWidget):
         strategy_layout = QVBoxLayout()
         strategy_label = QLabel("Trading Strategy:")
         self.strategy_combo = QComboBox()
-        self.strategy_combo.addItems(['trend_following', 'mean_reversion', 'predictive'])
+        self.strategy_combo.addItems(['trend_following', 'mean_reversion', 'predictive', 'ppo'])
         self.strategy_combo.currentIndexChanged.connect(self.on_strategy_changed)
         strategy_layout.addWidget(strategy_label)
         strategy_layout.addWidget(self.strategy_combo)
@@ -103,9 +103,30 @@ class ForecastTab(QWidget):
         self.predictive_group.setLayout(predictive_layout)
         params_section.addWidget(self.predictive_group)
         
+        # PPO parameters
+        self.ppo_group = QGroupBox("PPO Parameters")
+        ppo_layout = QFormLayout()
+        self.episodes_spin = QSpinBox()
+        self.episodes_spin.setRange(5, 100)
+        self.episodes_spin.setValue(10)
+        self.gamma_spin = QDoubleSpinBox()
+        self.gamma_spin.setRange(0.8, 0.999)
+        self.gamma_spin.setSingleStep(0.001)
+        self.gamma_spin.setValue(0.99)
+        self.lam_spin = QDoubleSpinBox()
+        self.lam_spin.setRange(0.8, 0.999)
+        self.lam_spin.setSingleStep(0.001)
+        self.lam_spin.setValue(0.95)
+        ppo_layout.addRow("Episodes:", self.episodes_spin)
+        ppo_layout.addRow("Gamma:", self.gamma_spin)
+        ppo_layout.addRow("Lambda:", self.lam_spin)
+        self.ppo_group.setLayout(ppo_layout)
+        params_section.addWidget(self.ppo_group)
+        
         # Show only relevant parameter group
         self.mean_reversion_group.hide()
         self.predictive_group.hide()
+        self.ppo_group.hide()
         
         layout.addLayout(params_section)
         
@@ -163,6 +184,7 @@ class ForecastTab(QWidget):
         self.trend_following_group.hide()
         self.mean_reversion_group.hide()
         self.predictive_group.hide()
+        self.ppo_group.hide()
         
         if strategy == 'trend_following':
             self.trend_following_group.show()
@@ -170,6 +192,8 @@ class ForecastTab(QWidget):
             self.mean_reversion_group.show()
         elif strategy == 'predictive':
             self.predictive_group.show()
+        elif strategy == 'ppo':
+            self.ppo_group.show()
     
     def run_forecast_trading(self):
         # Disable run button
@@ -199,6 +223,12 @@ class ForecastTab(QWidget):
             params = {
                 'buy_threshold': self.buy_multiplier_spin.value(),
                 'sell_threshold': self.sell_multiplier_spin.value()
+            }
+        elif strategy == 'ppo':
+            params = {
+                'episodes': self.episodes_spin.value(),
+                'gamma': self.gamma_spin.value(),
+                'lambda': self.lam_spin.value()
             }
         
         # Create and start worker thread

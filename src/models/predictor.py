@@ -173,4 +173,203 @@ class StockPredictor:
         plt.legend()
         plt.grid(True)
         plt.savefig(f'{self.ticker}_prediction.png')
-        plt.close() 
+        plt.close()
+        
+    def save_results_to_csv(self, filepath):
+        """
+        Menyimpan hasil prediksi ke file CSV
+        
+        Parameters:
+        -----------
+        filepath : str
+            Path file untuk menyimpan hasil
+        """
+        try:
+            # Predict first to make sure we have the results
+            y_true, y_pred, forecast = self.predict()
+            
+            # Create dataframe with historical data
+            historic_df = pd.DataFrame({
+                'Date': self.preprocessor.data.index[-len(y_true):],
+                'Actual': y_true,
+                'Predicted': y_pred,
+                'Error': y_pred - y_true,
+                'Error_Percent': ((y_pred - y_true) / y_true) * 100
+            })
+            
+            # Create dataframe with forecast data
+            forecast_dates = pd.date_range(
+                start=self.preprocessor.data.index[-1] + timedelta(days=1),
+                periods=len(forecast)
+            )
+            
+            forecast_df = pd.DataFrame({
+                'Date': forecast_dates,
+                'Forecast': forecast
+            })
+            
+            # Combine results
+            results = {
+                'Historic': historic_df,
+                'Forecast': forecast_df,
+                'Model': self.model_type,
+                'Ticker': self.ticker,
+                'Start_Date': self.start_date,
+                'End_Date': self.end_date,
+                'Lookback': self.lookback,
+                'Forecast_Days': self.forecast_days
+            }
+            
+            # Save to CSV
+            with open(filepath, 'w') as f:
+                # Write metadata
+                f.write(f"# Stock Price Prediction Results\n")
+                f.write(f"# Ticker: {self.ticker}\n")
+                f.write(f"# Model: {self.model_type}\n")
+                f.write(f"# Period: {self.start_date} to {self.end_date}\n")
+                f.write(f"# Lookback: {self.lookback} days\n")
+                f.write(f"# Forecast Days: {self.forecast_days} days\n")
+                f.write(f"# Generated: {pd.Timestamp.now()}\n\n")
+                
+                # Write historical data
+                f.write("## Historical Data\n")
+                historic_df.to_csv(f, index=False)
+                
+                f.write("\n\n## Forecast Data\n")
+                forecast_df.to_csv(f, index=False)
+                
+            return True
+        except Exception as e:
+            print(f"Error saving to CSV: {str(e)}")
+            return False
+            
+    def save_results_to_excel(self, filepath):
+        """
+        Menyimpan hasil prediksi ke file Excel
+        
+        Parameters:
+        -----------
+        filepath : str
+            Path file untuk menyimpan hasil
+        """
+        try:
+            # Predict first to make sure we have the results
+            y_true, y_pred, forecast = self.predict()
+            
+            # Create dataframe with historical data
+            historic_df = pd.DataFrame({
+                'Date': self.preprocessor.data.index[-len(y_true):],
+                'Actual': y_true,
+                'Predicted': y_pred,
+                'Error': y_pred - y_true,
+                'Error_Percent': ((y_pred - y_true) / y_true) * 100
+            })
+            
+            # Create dataframe with forecast data
+            forecast_dates = pd.date_range(
+                start=self.preprocessor.data.index[-1] + timedelta(days=1),
+                periods=len(forecast)
+            )
+            
+            forecast_df = pd.DataFrame({
+                'Date': forecast_dates,
+                'Forecast': forecast
+            })
+            
+            # Create metrics data
+            metrics = self.evaluate(y_true, y_pred)
+            metrics_df = pd.DataFrame({
+                'Metric': list(metrics.keys()),
+                'Value': list(metrics.values())
+            })
+            
+            # Save to Excel with multiple sheets
+            with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+                historic_df.to_excel(writer, sheet_name='Historical Data', index=False)
+                forecast_df.to_excel(writer, sheet_name='Forecast', index=False)
+                metrics_df.to_excel(writer, sheet_name='Metrics', index=False)
+                
+                # Create info sheet
+                info_data = {
+                    'Parameter': ['Ticker', 'Model', 'Start Date', 'End Date', 'Lookback Days', 
+                                'Forecast Days', 'Generated Date'],
+                    'Value': [self.ticker, self.model_type, self.start_date, self.end_date, 
+                            self.lookback, self.forecast_days, pd.Timestamp.now()]
+                }
+                pd.DataFrame(info_data).to_excel(writer, sheet_name='Info', index=False)
+                
+            return True
+        except Exception as e:
+            print(f"Error saving to Excel: {str(e)}")
+            return False
+            
+    def save_backtest_results(self, filepath, portfolio_values, trades, performance):
+        """
+        Menyimpan hasil backtest ke file
+        
+        Parameters:
+        -----------
+        filepath : str
+            Path file untuk menyimpan hasil
+        portfolio_values : array-like
+            Nilai portfolio selama periode backtest
+        trades : list
+            Daftar transaksi trading
+        performance : dict
+            Metrik performa backtest
+        """
+        try:
+            # Convert trades to dataframe
+            trades_df = pd.DataFrame(trades)
+            
+            # Create portfolio value dataframe
+            portfolio_df = pd.DataFrame({
+                'Day': np.arange(len(portfolio_values)),
+                'Value': portfolio_values
+            })
+            
+            # Create performance dataframe
+            performance_df = pd.DataFrame({
+                'Metric': list(performance.keys()),
+                'Value': list(performance.values())
+            })
+            
+            if filepath.endswith('.csv'):
+                # Save to CSV
+                with open(filepath, 'w') as f:
+                    # Write metadata
+                    f.write(f"# Backtest Results\n")
+                    f.write(f"# Ticker: {self.ticker}\n")
+                    f.write(f"# Model: {self.model_type}\n")
+                    f.write(f"# Period: {self.start_date} to {self.end_date}\n")
+                    f.write(f"# Generated: {pd.Timestamp.now()}\n\n")
+                    
+                    # Write performance metrics
+                    f.write("## Performance Metrics\n")
+                    performance_df.to_csv(f, index=False)
+                    
+                    # Write portfolio values
+                    f.write("\n\n## Portfolio Values\n")
+                    portfolio_df.to_csv(f, index=False)
+                    
+                    # Write trades
+                    f.write("\n\n## Trades\n")
+                    trades_df.to_csv(f, index=False)
+            else:
+                # Save to Excel
+                with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+                    portfolio_df.to_excel(writer, sheet_name='Portfolio Values', index=False)
+                    trades_df.to_excel(writer, sheet_name='Trades', index=False)
+                    performance_df.to_excel(writer, sheet_name='Performance', index=False)
+                    
+                    # Create info sheet
+                    info_data = {
+                        'Parameter': ['Ticker', 'Model', 'Start Date', 'End Date', 'Generated Date'],
+                        'Value': [self.ticker, self.model_type, self.start_date, self.end_date, pd.Timestamp.now()]
+                    }
+                    pd.DataFrame(info_data).to_excel(writer, sheet_name='Info', index=False)
+            
+            return True
+        except Exception as e:
+            print(f"Error saving backtest results: {str(e)}")
+            return False 
