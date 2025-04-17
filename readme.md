@@ -8,7 +8,9 @@ Aplikasi prediksi harga saham yang menggunakan machine learning untuk memprediks
 - Backtesting strategi trading
 - Optimisasi parameter strategi
 - Simulasi trading berdasarkan hasil prediksi
+- Reinforcement Learning dengan PPO Agent untuk optimasi strategi trading
 - Antarmuka grafis (GUI) untuk kemudahan penggunaan
+- Perhitungan dan visualisasi berbagai indikator teknikal
 
 ## Struktur Proyek
 Berikut adalah struktur proyek 
@@ -28,21 +30,23 @@ Stock-Price-Prediction/
 │   │   └── indicators.py      # Indikator teknikal
 │   ├── models/                # Modul terkait model
 │   │   ├── __init__.py
-│   │   ├── builder.py         # Pembuat model
+│   │   ├── builder.py         # Pembuat model (CNN-LSTM, BiLSTM, Transformer, Ensemble)
 │   │   ├── tuner.py           # Hyperparameter tuning
 │   │   └── predictor.py       # Prediktor saham
 │   ├── trading/               # Modul terkait trading
 │   │   ├── __init__.py
 │   │   ├── strategies.py      # Strategi trading
 │   │   ├── backtest.py        # Backtesting
-│   │   └── optimizer.py       # Optimisasi strategi
+│   │   ├── optimizer.py       # Optimisasi strategi
+│   │   └── ppo_agent.py       # Reinforcement Learning dengan PPO 
 │   ├── gui/                   # Modul terkait GUI
 │   │   ├── __init__.py
 │   │   ├── app.py             # Aplikasi utama
 │   │   ├── prediction_tab.py  # Tab prediksi
 │   │   ├── backtest_tab.py    # Tab backtesting
 │   │   ├── optimizer_tab.py   # Tab optimisasi
-│   │   └── forecast_tab.py    # Tab trading forecast
+│   │   ├── forecast_tab.py    # Tab trading forecast
+│   │   └── styles.py          # Konfigurasi style GUI
 │   └── utils/                 # Utilitas
 │       ├── __init__.py
 │       ├── visualization.py   # Visualisasi data dan hasil
@@ -95,8 +99,28 @@ python scripts/run_cli.py --ticker ADRO.JK --start_date 2020-01-01 --end_date 20
 | `--lookback`   | Jumlah hari historis untuk input model | `60`               |
 | `--forecast`   | Jumlah hari ke depan untuk prediksi    | `20`               |
 | `--tune`       | Aktifkan hyperparameter tuning         | `True` / `False`   |
+| `--rl`         | Gunakan Reinforcement Learning         | `True` / `False`   |
+| `--episodes`   | Jumlah episode untuk training RL       | `100`              |
 
 ---
+
+## Model yang Didukung
+
+### CNN-LSTM
+Kombinasi Convolutional Neural Network dan Long Short-Term Memory yang efektif untuk data deret waktu. Lapisan CNN mengidentifikasi pola lokal, sedangkan LSTM menangkap ketergantungan jangka panjang.
+
+### BiLSTM
+Bidirectional LSTM yang menganalisis data dari kedua arah (maju dan mundur) untuk pemahaman konteks yang lebih baik.
+
+### Transformer
+Arsitektur berdasarkan mekanisme attention yang sangat efektif untuk sequence modeling. Menangkap ketergantungan jarak jauh tanpa menggunakan recurrence.
+
+### Ensemble
+Kombinasi dari tiga model di atas, menggabungkan kelebihan masing-masing untuk kinerja prediksi yang lebih baik.
+
+## Reinforcement Learning untuk Trading
+
+Proyek ini mengimplementasikan Proximal Policy Optimization (PPO) untuk melatih agen yang mengoptimalkan keputusan trading. PPO Agent belajar secara otomatis kapan harus membeli, menjual, atau menahan saham untuk memaksimalkan keuntungan.
 
 ## Contributing
 Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk detail tentang kode etik dan proses pengajuan pull request.
