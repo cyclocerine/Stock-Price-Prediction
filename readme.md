@@ -1,4 +1,5 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white)
 # 📈 StockPricePrediction
 
 Aplikasi prediksi harga saham yang menggunakan machine learning untuk memprediksi harga saham dan mendukung backtesting strategi trading.
