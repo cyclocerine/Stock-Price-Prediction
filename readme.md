@@ -1,4 +1,4 @@
-![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 # 📈 StockPricePrediction
 
 Aplikasi prediksi harga saham yang menggunakan machine learning untuk memprediksi harga saham dan mendukung backtesting strategi trading.
