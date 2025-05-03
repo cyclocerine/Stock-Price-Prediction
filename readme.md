@@ -132,7 +132,7 @@ Proyek ini dilisensikan di bawah Apache License 2.0 - lihat file [LICENSE](LICEN
 
 ## 🧪 Lisensi
 
-Proyek ini menggunakan [Apache License 2.0](./LICENSE). Bebas digunakan, tapi kasih kredit ya!
+Proyek ini menggunakan [MIT License](./LICENSE). Bebas digunakan, tapi kasih kredit ya!
 
 ---
 
