@@ -124,10 +124,6 @@ Proyek ini mengimplementasikan Proximal Policy Optimization (PPO) untuk melatih 
 
 ## Contributing
 Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk detail tentang kode etik dan proses pengajuan pull request.
-
-## License
-Proyek ini dilisensikan di bawah Apache License 2.0 - lihat file [LICENSE](LICENSE) untuk detailnya.
-
 ---
 
 ## 🧪 Lisensi
