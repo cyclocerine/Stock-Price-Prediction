@@ -1,5 +1,6 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N51EF9I0)
 # 📈 StockPricePrediction
 
 Aplikasi prediksi harga saham yang menggunakan machine learning untuk memprediksi harga saham dan mendukung backtesting strategi trading.
@@ -146,4 +147,5 @@ Pull Request? Boleh banget. Buka issue? Gaskeun. 🌟
 ## ✨ Dibuat oleh
 
 **Fa'iq Hammam**  
-💼 [LinkedIn](https://www.linkedin.com/in/faiq-hammam-mutaqin-9a3733217/) | 💻 IT Engineer | 🧠 Deep Learning Enthusiast | [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N51EF9I0)
+💼 [LinkedIn](https://www.linkedin.com/in/faiq-hammam-mutaqin-9a3733217/) | 💻 IT Engineer | 🧠 Deep Learning Enthusiast |
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N51EF9I0)
